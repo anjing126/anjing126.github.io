@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr" id="index">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Language" content="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+ <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,maximum-scale=1" />
+<title></title>
+ <body>
+	<style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: #333;
+      color: #fff;
+      padding:10px;
+      font-family: 'Microsoft YaHei';
+			font-size:12px;
+    }
+		body,div,h1,h2,h3,h4,h5,form,img,ul,ol,li,dl,dd,p{margin:0; padding:0;}
+		ul{list-style:none;}
+
+    .list .item {
+      display: flex;
+    }
+    .line {
+      border-top: 1px dashed #ccc;
+      padding: 40px 0 0;
+      line-height: 28px;
+      margin-top: 40px;
+    }
+
+    .line:nth-child(1) {
+      border-top: 0 none;
+    }
+
+    .list span {
+      margin-right: 40px;
+    }
+
+    .ft-red {
+      color: red;
+    }
+    .ft-gray {
+      color: green;
+    }
+
+    .content {
+      margin-top: 100px;
+    }
+
+    .ft {
+      color: #f5a367;
+    }
+
+		li{
+			display: flex;
+		}
+		li > span{
+			flex:1;
+		}
+
+		li .last{
+		flex:2;
+		}
+		table{
+			border-collapse: collapse;
+		}
+
+		table thead{
+		  line-height:40px;
+		}
+
+		table td{
+			border:1px solid #ccc;
+			text-align: center;
+		}
+
+		.row{
+			margin:10px 0;
+		}
+
+		a{
+			color: blue;
+			text-decoration: underline;
+		}
+  </style>
+<div id="hello-vue" class="demo">
+	<div v-show="data.length">
+		<div v-html="countHtml"></div>
+	</div>
+		
+		<div class="row">
+			<input v-model="form.title" placeholder="请输入名称" />
+		</div>
+		<div class="row">
+				<input v-model="form.num" placeholder="请输入数值" />
+				<input v-model="form.rebateNum" placeholder="请输入比率" />
+		</div>
+		<div class="row">
+				<select v-model="form.status">
+					<option disabled selected style="display:none"></option>
+					<option v-for="(item, i) in STATUS_OPTIONS" :key="i" :value="item.value">{{ item.name }}</option>
+				</select>
+				<button @click="add">加入</button>
+		</div>
+		<br>
+		<div class="row" style="text-align: right;">
+			<button @click="removeAll">清空下方数据</button>
+		</div>
+
+  <table style="width:100%;">
+		<thead>
+		<tr style="position: sticky;">
+			<td>名称</td>
+			<td>状态</td>
+			<td>比率</td>
+			<td>数值</td>
+			<td>结果</td>
+			<td>操作</td>
+		</tr>
+		</thead>
+		<tbody>
+		<tr v-for="(item, i) in data" :key="i">
+			<td>{{ item.title }}</td>
+			<td><span :class="`status ${item.status != 5? [1, 2].includes(item.status)? 'ft-gray': 'ft-red': ''}`">{{ item.statusName  }}</span></td>
+			<td>{{ item.rebate }}</td>
+			<td class="td">{{ item.num }}</td>
+			<td class="last"><span v-html="infoHtml(item)"></span></td>
+			<td>
+				<a @click="removeLine(i)">删除</a>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+	
+	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+	<script src="js/index.js">
+		     const HelloVueApp = {
+  data() {
+    return {
+      message: 'Hello Vue!!',
+      STATUS_OPTIONS: [
+        {
+          name: '赢',
+          value: 1,
+        },
+        {
+          name: '赢一半',
+          value: 2,
+        },
+        {
+          name: '输',
+          value: 3,
+        },
+        {
+          name: '输一半',
+          value: 4,
+        },
+        {
+          name: '跑马',
+          value: 5,
+        },
+      ],
+      logObeject: {},
+      data: [],
+
+      form: {
+        title: null,
+        rebateNum: null,
+        status: undefined,
+        num: null,
+      },
+      info: {
+        a1: {
+          total: 0,
+          consume: 0,
+        },
+        a2: {
+          total: 0,
+          consume: 0,
+        },
+        a3: {
+          total: 0,
+          consume: 0,
+        },
+      },
+    };
+  },
+  mounted() {
+    this.init();
+  },
+  computed: {
+    infoHtml() {
+      return (row) => {
+        let html = ``;
+
+        for (let i in row.info) {
+          let item = row.info[i];
+          html += `<span>${i}：${item.total}</span><br>`;
+        }
+
+        return html;
+      };
+    },
+    countHtml() {
+      let html = '',
+        consumeAll = 0;
+      for (let i in this.info) {
+        let l = this.info[i],
+          num = +((280 / 10000) * l.consume).toFixed(2),
+          s = (l.total + (l.total < 0 ? -num : num)).toFixed(2);
+
+        consumeAll += l.consume;
+        html += `<span>
+          ${i}：
+          ${l.total}，水：${l.consume}，结果：${s}</span><br>
+        </span>`;
+      }
+
+      let numAll = +((280 / 10000) * consumeAll).toFixed(2);
+
+      html += `<span>总水：${consumeAll}，${numAll}</span>`;
+
+      return html;
+    },
+  },
+  methods: {
+    init() {
+      let _data = localStorage.getItem('data');
+      this.data = JSON.parse(_data) || [];
+      if (!this.data.length) return;
+      this.data.forEach((item) => {
+        item[`statusName`] = this.STATUS_OPTIONS.find(
+          (s) => s.value == item.status
+        ).name;
+        item['info'] = this.match(item);
+      });
+      this.count();
+    },
+
+    count() {
+      this.info = this.$options.data().info;
+
+      this.data.map((item) => {
+        let { info: obj } = item;
+
+        for (let i in obj) {
+          this.info[i].total += obj[i].total;
+          this.info[i].consume += obj[i].consume;
+        }
+      });
+    },
+
+    calc({ num, rebate, status } = {}) {
+      let total =
+          status == 5
+            ? 0
+            : +(
+                num *
+                ([1, 2].includes(status) ? 1 : rebate) *
+                ([2, 4].includes(status) ? 0.5 : 1) *
+                ([1, 2].includes(status) ? 1 : -1)
+              ).toFixed(2),
+        consume =
+          status == 5
+            ? 0
+            : +(
+                num *
+                ([3, 4].includes(status) ? rebate : 1) *
+                ([2, 4].includes(status) ? 0.5 : 1)
+              ).toFixed(2);
+
+      return {
+        consume,
+        total,
+      };
+    },
+    match({ num, rebate, status } = {}) {
+      let a1 = 0,
+        a2 = 0,
+        a3 = 0;
+
+      if (num < 801) {
+        a1 = num / 4;
+        a2 = a1;
+        a3 = num - a1 * 2;
+      } else if (num > 801 && num < 1001) {
+        a1 = 200;
+        a2 = a1;
+        a3 = num - a1 * 2;
+      } else if (num > 1001 && num < 1999) {
+        a1 = 300;
+        a2 = num / 4;
+        a3 = num - a1 - a2;
+      } else {
+        a1 = 400;
+        a2 = num / 4;
+        a3 = num - a1 - a2;
+      }
+
+      return {
+        a1: this.calc({ num: a1, rebate, status }),
+        a2: this.calc({ num: a2, rebate, status }),
+        a3: this.calc({ num: a3, rebate, status }),
+      };
+    },
+    add() {
+      let { rebateNum, status } = this.form;
+      if (!rebateNum) {
+        return alert('请输入比率');
+      }
+      if (!status) {
+        return alert('请选择状态');
+      }
+
+      let rebate = (+rebateNum / 100).toFixed(2),
+        params = {
+          ...this.form,
+          rebate,
+          statusName: this.STATUS_OPTIONS.find((s) => s.value == status).name,
+          info: this.match({
+            ...this.form,
+            rebate,
+          }),
+        };
+
+      this.data.push(params);
+
+      this.$nextTick(() => {
+        this.count();
+        localStorage.setItem('data', JSON.stringify(this.data));
+        this.form = this.$options.data().form;
+      });
+    },
+    removeLine(i) {
+      if (confirm('是否删除')) {
+        this.data.splice(i, 1);
+        localStorage.setItem('data', JSON.stringify(this.data));
+        this.count();
+      }
+    },
+    removeAll() {
+      if (confirm('是否删除')) {
+        this.data = [];
+        localStorage.setItem('data', JSON.stringify(this.data));
+        this.count();
+      }
+    },
+  },
+};
+
+new Vue({
+  el: '#hello-vue',
+  ...HelloVueApp,
+});
+
+	</script>
+ </body>
+</html>
