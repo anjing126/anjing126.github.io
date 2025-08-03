@@ -213,7 +213,7 @@
       for (let i in this.info) {
         let l = this.info[i],
           num = +((280 / 10000) * l.consume).toFixed(2),
-          s = (l.total + (l.total < 0 ? -num : num)).toFixed(2);
+          s = (l.total - l.consume).toFixed(2);
 
         consumeAll += l.consume;
         html += `<span>
@@ -361,5 +361,4 @@ new Vue({
 
 	</script>
  </body>
-
 </html>
