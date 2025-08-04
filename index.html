@@ -310,9 +310,9 @@
       };
     },
     add() {
-      let { rebateNum, status } = this.form;
-      if (!rebateNum) {
-        return alert('请输入比率');
+      let { rebateNum, status, num } = this.form;
+      if (!num) {
+        return alert('请输入数值');
       }
       if (!status) {
         return alert('请选择状态');
