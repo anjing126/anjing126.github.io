@@ -297,8 +297,19 @@
         a1 = 300;
         a2 = num / 4;
         a3 = num - a1 - a2;
-      } else {
+      }
+       else if (num > 1999 && num < 2500) {
         a1 = 400;
+        a2 = num / 4;
+        a3 = num - a1 - a2;
+      }
+      else if (num > 2499 && num < 3000) {
+        a1 = 500;
+        a2 = num / 4;
+        a3 = num - a1 - a2;
+      }
+      else {
+        a1 = 600;
         a2 = num / 4;
         a3 = num - a1 - a2;
       }
